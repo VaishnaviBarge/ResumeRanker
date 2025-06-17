@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { SupaService } from 'src/app/services/supa.service';
+import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
   selector: 'app-register',
@@ -12,7 +13,8 @@ export class RegisterComponent {
 
   constructor(
     private formBuilder: FormBuilder,
-    private supaService: SupaService  
+    private supaService: SupaService,
+    private toastService: ToastService
   ) {
     this.registerForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email, Validators.minLength(5)]],
@@ -39,13 +41,16 @@ export class RegisterComponent {
           this.registerForm.value.role
         )
         .then((res) => {
-          console.log('User registered successfully:', res);
+          this.toastService.show('Registered successfully! Please confirm your email before logging in.');
+        this.registerForm.reset();
         })
         .catch((err) => {
           console.error('Registration error:', err);
+          this.toastService.show('Registration failed. Please try again.');
         });
     } else {
       console.error('Form is invalid');
+      this.toastService.show('Please fill out the form correctly.', 3000);
     }
   }
 }

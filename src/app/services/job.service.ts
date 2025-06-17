@@ -60,7 +60,8 @@ export class JobService {
       const { data, error } = await this.supabase_client
         .from('jobs')
         .select('*')
-        .eq('recruiter_id', recruiterId); 
+        .eq('recruiter_id', recruiterId)
+        .eq('status', 'open');
   
       if (error) {
         console.error("Error fetching jobs for recruiter:", error.message);
@@ -192,6 +193,26 @@ export class JobService {
     }
 }
 
+async updateApplicationStatus(applicationIds: string[], status: string): Promise<boolean> {
+  try {
+    const { error } = await this.supabase_client
+      .from('job_applications')
+      .update({ status: status })
+      .in('id', applicationIds);
+
+    if (error) {
+      console.error('Error updating application status:', error.message);
+      return false;
+    }
+
+    console.log(`Successfully updated ${applicationIds.length} applications to status: ${status}`);
+    return true;
+  } catch (err) {
+    console.error('JobService Error updating status:', err);
+    return false;
+  }
+}
+
   async getApplicationsForJob(jobId: string): Promise<any[]> {
     const { data, error } = await this.supabase_client
       .from('job_applications')
@@ -315,7 +336,18 @@ export class JobService {
     }
   }
 
-  
+  async updateJobStatus(jobId: string, status: string): Promise<boolean> {
+  const { error } = await this.supabase_client
+    .from('jobs')
+    .update({ status })
+    .eq('id', jobId);
+
+  if (error) {
+    console.error('Failed to update job status:', error.message);
+    return false;
+  }
+  return true;
+}
 
   async getComposeMail(emailList: string[], subject: string, message: string): Promise<number> {
     try {
@@ -364,5 +396,6 @@ async getCandidateEmailsByIds(candidateIds: string[]): Promise<string[]> {
     return [];
   }
 }
+
 
 }
