@@ -10,7 +10,7 @@ import { SupaService } from 'src/app/services/supa.service';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
-currentUser: any;
+  currentUser: any;
   isProfileIncomplete: boolean = false;
   userData: any;
   updatedUserData: any;

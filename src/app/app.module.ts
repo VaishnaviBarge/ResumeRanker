@@ -10,6 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { DashboardLayoutComponent } from './component/dashboard-candidate/dashboard-layout/dashboard-layout/dashboard-layout.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
+import { ToastComponent } from './component/toster/toast/toast.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -19,6 +20,7 @@ import { ToastrModule } from 'ngx-toastr';
     
     LandingPageComponent,
     DashboardLayoutComponent,
+    ToastComponent,
   ],
   imports: [
     BrowserModule,
