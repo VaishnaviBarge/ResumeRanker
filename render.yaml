@@ -1,0 +1,5 @@
+services:
+  - type: web
+    name: resume-ranker
+    env: static
+    staticPublishPath: dist/resume-ranker
