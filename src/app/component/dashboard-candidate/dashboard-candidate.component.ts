@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { ProfileService } from 'src/app/services/profile.service';
@@ -9,12 +9,13 @@ import { SupaService } from 'src/app/services/supa.service';
   templateUrl: './dashboard-candidate.component.html',
   styleUrls: ['./dashboard-candidate.component.css'],
 })
-export class DashboardCandidateComponent {
+export class DashboardCandidateComponent implements OnInit, OnDestroy {
   currentUser: any;
   isProfileIncomplete: boolean = false;
   userData: any;
   updatedUserData: any;
   user: any;
+
   constructor(
     private supaService: SupaService,
     private router: Router,
@@ -33,9 +34,17 @@ export class DashboardCandidateComponent {
       }
       this.checkProfileCompletion();
       this.loadCandidateDetails();
+      
+      // Set up sidebar overlay listener
+      this.setupOverlayListener();
     } catch (error) {
       console.error('Error retrieving or saving user data:', error);
     }
+  }
+
+  ngOnDestroy(): void {
+    // Clean up event listeners when component is destroyed
+    this.removeOverlayListener();
   }
 
   checkProfileCompletion() {
@@ -52,7 +61,6 @@ export class DashboardCandidateComponent {
     console.log("Profile incomplete:", this.isProfileIncomplete);
   }
 
-
   async loadCandidateDetails() {
     this.user = await this.supaService.getCurrentUser();
     if (this.user) {
@@ -68,27 +76,84 @@ export class DashboardCandidateComponent {
       console.log("Copied Data for Editing:", this.updatedUserData);
     }
   }
-  // getProfileDetails(){
-  //   this.currentUser = this.supaService.getCurrentUser();
-  //   console.log("Profileee....:",this.currentUser);
-  // }
 
+  // Sidebar toggle functionality
+  toggleSidebar(): void {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    if (sidebar && overlay) {
+      if (sidebar.classList.contains('-translate-x-full')) {
+        // Show sidebar
+        sidebar.classList.remove('-translate-x-full');
+        sidebar.classList.add('translate-x-0');
+        overlay.classList.remove('hidden');
+      } else {
+        // Hide sidebar
+        sidebar.classList.add('-translate-x-full');
+        sidebar.classList.remove('translate-x-0');
+        overlay.classList.add('hidden');
+      }
+    }
+  }
+
+  // Close sidebar (can be called from template or programmatically)
+  closeSidebar(): void {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    if (sidebar && overlay) {
+      sidebar.classList.add('-translate-x-full');
+      sidebar.classList.remove('translate-x-0');
+      overlay.classList.add('hidden');
+    }
+  }
+
+  // Set up overlay click listener
+  private setupOverlayListener(): void {
+    const overlay = document.getElementById('sidebar-overlay');
+    if (overlay) {
+      overlay.addEventListener('click', this.handleOverlayClick.bind(this));
+    }
+  }
+
+  // Remove overlay click listener
+  private removeOverlayListener(): void {
+    const overlay = document.getElementById('sidebar-overlay');
+    if (overlay) {
+      overlay.removeEventListener('click', this.handleOverlayClick.bind(this));
+    }
+  }
+
+  // Handle overlay click
+  private handleOverlayClick(): void {
+    this.closeSidebar();
+  }
+
+  // Navigation methods (updated to close sidebar on mobile)
   goToProfile() {
+    this.closeSidebar(); // Close sidebar on navigation (mobile)
     this.router.navigate(['candidate-dashboard/profile']);
   }
-  goToCompanies(){
+
+  goToCompanies() {
+    this.closeSidebar(); // Close sidebar on navigation (mobile)
     this.router.navigate(['candidate-dashboard/company']);
   }
-  goToHome(){
+
+  goToHome() {
+    this.closeSidebar(); // Close sidebar on navigation (mobile)
     this.router.navigate(['candidate-dashboard/']);
   }
 
-  async logout() {
-    await this.supaService.signOut();
-    this.router.navigate(['/login']);
+  goToJob() {
+    this.closeSidebar(); // Close sidebar on navigation (mobile)
+    this.router.navigate(['candidate-dashboard/job']);
   }
 
-  goToJob() {
-    this.router.navigate(['candidate-dashboard/job']);
+  async logout() {
+    this.closeSidebar(); // Close sidebar before logout
+    await this.supaService.signOut();
+    this.router.navigate(['/login']);
   }
 }
