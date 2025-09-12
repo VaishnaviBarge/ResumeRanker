@@ -1,4 +1,4 @@
-<div *ngIf="userData; else loading" class="p-8 bg-white rounded-lg shadow-lg  mx-auto my-8">
+<div *ngIf="userData; else loading" class="p-8 bg-white rounded-lg shadow-lg mx-auto my-8">
   <h2 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-3">Candidate Profile</h2>
 
   <form #profileForm="ngForm" (ngSubmit)="saveChanges()" class="space-y-6">
@@ -56,8 +56,21 @@
 
         <div class="space-y-2">
           <label class="block text-sm font-medium text-gray-700">Expected Salary Range:</label>
-          <input name="expected_salary_range" [(ngModel)]="updatedUserData.expected_salary_range" 
-                class="border border-gray-300 p-2 w-full rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+          <div class="flex gap-2">
+            <input
+              type="number"
+              name="expected_salary_min"
+              [(ngModel)]="updatedUserData.expected_salary_min"
+              placeholder="Min"
+              class="border border-gray-300 p-2 w-full rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+
+            <input
+              type="number"
+              name="expected_salary_max"
+              [(ngModel)]="updatedUserData.expected_salary_max"
+              placeholder="Max"
+              class="border border-gray-300 p-2 w-full rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+          </div>
         </div>
       </div>
     </div>
@@ -68,9 +81,65 @@
       <div class="space-y-4">
         <div class="space-y-2">
           <label class="block text-sm font-medium text-gray-700">Skills:</label>
-          <input name="skills" [(ngModel)]="updatedUserData.skills" 
-                class="border border-gray-300 p-2 w-full rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                placeholder="Comma-separated values" />
+
+          <div class="relative">
+            <div class="flex flex-wrap items-center border border-gray-300 p-2 rounded-md min-h-[42px] focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
+              <!-- Show selected skills as chips -->
+              <span *ngFor="let skill of updatedUserData.skills; trackBy: trackBySkill" 
+                    class="bg-blue-100 text-blue-700 text-sm font-medium mr-2 mb-2 px-2 py-1 rounded-full flex items-center">
+                {{ skill }}
+                <button (click)="removeSkill(skill)" 
+                        class="ml-1 text-red-500 hover:text-red-700 focus:outline-none"
+                        type="button"
+                        aria-label="Remove skill">
+                  &times;
+                </button>
+              </span>
+
+              <!-- Input to type new skills -->
+              <input
+                #skillInput
+                name="newSkill"
+                [(ngModel)]="newSkill"
+                (input)="filterSkills()"
+                (focus)="onInputFocus()"
+                (blur)="onInputBlur()"
+                (keydown)="onKeyDown($event)"
+                placeholder="Type to search skills..."
+                class="flex-1 min-w-[120px] border-none focus:outline-none bg-transparent"
+                autocomplete="off"
+                type="text"
+              />
+            </div>
+
+            <!-- Autocomplete suggestions dropdown -->
+            <div *ngIf="showSuggestions && filteredSkills.length > 0" 
+                class="absolute z-50 w-full bg-white shadow-lg border border-gray-200 mt-1 rounded-md max-h-60 overflow-y-auto">
+              <div
+                *ngFor="let suggestion of filteredSkills; trackBy: trackBySkill; let i = index"
+                (mousedown)="$event.preventDefault(); selectSuggestion(suggestion)"
+                (click)="selectSuggestion(suggestion)"
+                class="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 last:border-b-0 text-sm transition-colors"
+                role="option"
+                [attr.aria-selected]="i === 0"
+              >
+                {{ suggestion }}
+              </div>
+              
+              <!-- Show "Add custom skill" option if input doesn't match any suggestion -->
+              <div *ngIf="newSkill && newSkill.trim().length > 0 && !filteredSkills.includes(newSkill.trim())"
+                   (mousedown)="$event.preventDefault(); addSkill()"
+                   (click)="addSkill()"
+                   class="p-3 hover:bg-green-50 cursor-pointer text-sm text-green-700 border-t border-gray-200 font-medium">
+                Add "{{ newSkill.trim() }}" as custom skill
+              </div>
+            </div>
+          </div>
+
+          <!-- Optional: Show count of selected skills -->
+          <div class="text-xs text-gray-500" *ngIf="updatedUserData.skills?.length > 0">
+            {{ updatedUserData.skills.length }} skill(s) selected
+          </div>
         </div>
 
         <div class="space-y-2">
@@ -86,40 +155,111 @@
         </div>
 
         <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-700">Certifications:</label>
-          <input name="certifications" [(ngModel)]="updatedUserData.certifications" 
-                class="border border-gray-300 p-2 w-full rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                placeholder="Comma-separated values" />
+          <label class="block text-sm font-medium text-gray-700">Expected Salary Range (in LPA):</label>
+          
+          <div class="flex gap-2 items-center">
+            <div class="relative w-full">
+              <span class="absolute left-2 top-2.5 text-gray-500">₹</span>
+              <input
+                type="number"
+                name="expected_salary_min"
+                [(ngModel)]="updatedUserData.expected_salary_min"
+                placeholder="Min"
+                class="pl-6 pr-2 border border-gray-300 p-2 w-full rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+              <span class="absolute right-2 top-2.5 text-gray-500">LPA</span>
+            </div>
+
+            <div class="relative w-full">
+              <span class="absolute left-2 top-2.5 text-gray-500">₹</span>
+              <input
+                type="number"
+                name="expected_salary_max"
+                [(ngModel)]="updatedUserData.expected_salary_max"
+                placeholder="Max"
+                class="pl-6 pr-2 border border-gray-300 p-2 w-full rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+              <span class="absolute right-2 top-2.5 text-gray-500">LPA</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Resume Section -->
     <div class="bg-gray-50 p-4 rounded-md">
-      <h3 class="text-xl font-semibold mb-4 text-gray-700">Resume</h3>
-      <div class="space-y-4">
-        <div class="space-y-2">
-          <label class="block text-sm font-medium text-gray-700">Upload Resume (PDF):</label>
-          <input type="file" (change)="onFileSelected($event)" 
-                class="border border-gray-300 p-2 w-full rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                accept="application/pdf" />
+  <h3 class="text-xl font-semibold mb-4 text-gray-700">Resume</h3>
+  <div class="space-y-4">
+
+    <!-- File Upload Input -->
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-gray-700">Upload Resume(s) (PDF):</label>
+      <input type="file" multiple (change)="onFilesSelected($event)" 
+             accept="application/pdf"
+             class="border border-gray-300 p-2 w-full rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+    </div>
+
+    <!-- Upload Button -->
+    <button (click)="uploadResumes()" 
+            type="button"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300">
+      Upload Selected
+    </button>
+
+    <!-- Uploaded Resumes -->
+    <div *ngIf="getResumeUrls().length > 0" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mt-6">
+  <div class="flex items-center gap-3 mb-5">
+    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+      <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+    </div>
+    <div>
+      <h4 class="text-lg font-semibold text-gray-900">Uploaded Resumes</h4>
+      <p class="text-sm text-gray-500">{{ getResumeUrls().length }} resume{{ getResumeUrls().length > 1 ? 's' : '' }} uploaded</p>
+    </div>
+  </div>
+
+  <div class="space-y-3">
+    <div *ngFor="let url of getResumeUrls(); let i = index; trackBy: trackByUrl" 
+         class="group flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-all duration-200 hover:shadow-md">
+      
+      <div class="flex items-center gap-4 flex-1">
+        <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-lg flex items-center justify-center shadow-sm">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
         </div>
-
-        <div class="flex flex-wrap gap-3">
-          <button (click)="uploadResume()" 
-                  class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300">
-            Upload
-          </button>
-
-          <div *ngIf="getResumeUrl()">
-            <a [href]="getResumeUrl()" target="_blank" 
-               class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-colors inline-block focus:outline-none focus:ring-2 focus:ring-green-300">
-              View Resume
-            </a>
-          </div>
+        
+        <div class="flex-1">
+          <h5 class="font-medium text-gray-900 group-hover:text-gray-700">Resume {{ i + 1 }}</h5>
+          <p class="text-sm text-gray-500">Click to view document</p>
         </div>
       </div>
+
+      <div class="flex items-center gap-2">
+        <a [href]="url" target="_blank" 
+           class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-2 hover:shadow-lg hover:scale-105">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+          </svg>
+          View
+        </a>
+        
+        <button (click)="deleteResume(url)"
+                class="inline-flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-offset-2 border border-red-200 hover:border-red-300 hover:shadow-md">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          Delete
+        </button>
+      </div>
     </div>
+  </div>
+</div>
+
+  </div>
+</div>
+
 
     <!-- Action Buttons -->
     <div class="flex justify-end">

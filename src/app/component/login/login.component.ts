@@ -1,11 +1,15 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { SupaService } from 'src/app/services/supa.service';
+import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
   selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -17,7 +21,7 @@ export class LoginComponent {
     private formBuilder: FormBuilder,
     private supaService: SupaService,
     private router: Router,
-    private toster: ToastrService,
+    private toastService: ToastService,
   ) {
     console.log("hello bhai");
     
@@ -31,6 +35,7 @@ export class LoginComponent {
   async onSubmit() {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
+       this.toastService.show('Please fill out all fields correctly.');
       return;
     }
   
@@ -43,18 +48,18 @@ export class LoginComponent {
   
       if (!user) {
         this.errorMessage = 'Invalid login credentials';
-        this.toster.error('Invalid login credentials', 'Error'); 
+        this.toastService.show('Invalid login credentials');
         console.error('Login error: User not found');
         return;
       }
   
       console.log('Logged in successfully:', user);
-      this.toster.success('Logged in successfully!', 'Success');
+      this.toastService.show('Logged in successfully!');
       const userRole = user.user_metadata['role'];
 
       if (!userRole) {
         this.errorMessage = 'User role not found.';
-        this.toster.warning('User role not found.', 'Warning'); 
+        this.toastService.show('User role not found.');
         console.error('Error: User role is missing in metadata.');
         return;
       }
@@ -74,6 +79,7 @@ export class LoginComponent {
     } catch (err: any) {
       console.error('Login error:', err);
       this.errorMessage = err?.message || 'An unexpected error occurred.';
+      this.toastService.show(err?.message || 'An unexpected error occurred.');
     }
   }
   

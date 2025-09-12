@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: resume-ranker
+    env: node
+    buildCommand: npm run build
+    startCommand: npm start
+    plan: free

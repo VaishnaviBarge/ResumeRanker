@@ -41,6 +41,7 @@
     <table class="w-full border-collapse border border-gray-300 shadow-sm">
       <thead>
         <tr class="bg-indigo-100">
+          <th class="border p-3 text-left text-indigo-800">Rank</th>
           <th class="border p-3 text-left text-indigo-800">Candidate ID</th>
           <th class="border p-3 text-left text-indigo-800">Candidate Name</th>
           <th class="border p-3 text-left text-indigo-800">Resume</th>
@@ -49,9 +50,22 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let application of filteredApplications" 
+        <tr *ngFor="let application of filteredApplications; let i = index" 
             [ngClass]="{'bg-indigo-50': application.overall_match_score >= 80}"
             class="hover:bg-gray-50 transition-colors duration-150">
+          <td class="border p-3 text-center">
+            <div class="flex items-center justify-center">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold"
+                    [ngClass]="{
+                      'bg-yellow-400 text-yellow-900': i === 0,
+                      'bg-gray-400 text-gray-900': i === 1,
+                      'bg-orange-400 text-orange-900': i === 2,
+                      'bg-indigo-100 text-indigo-800': i > 2
+                    }">
+                {{ i + 1 }}
+              </span>
+            </div>
+          </td>
           <td class="border p-3">{{ application.candidate_id }}</td>
           <td class="border p-3">{{ application.candidates?.fullname || 'N/A' }}</td>
           <td class="border p-3">
@@ -96,7 +110,7 @@
           </td>
         </tr>
         <tr *ngIf="filteredApplications.length === 0">
-          <td colspan="5" class="border p-4 text-center text-gray-500">
+          <td colspan="6" class="border p-4 text-center text-gray-500">
             No applications match the filter criteria. Try lowering the minimum match percentage.
           </td>
         </tr>

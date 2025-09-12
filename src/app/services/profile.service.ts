@@ -52,38 +52,121 @@ export class ProfileService {
    * @returns The public URL of the uploaded file or null if the upload fails.
    */
   async uploadFile(userId: string, file: File): Promise<string | null> {
-    try {
-      const filePath = `${userId}/${file.name}`;
-  
-      const { data, error } = await this.supabase_client.storage
-        .from('resumes')
-        .upload(filePath, file, { upsert: true });
-  
-      if (error) {
-        console.error('Error uploading file:', error);
-        return null;
-      }
-  
-     
-      const { data: publicUrlData } = this.supabase_client.storage
-        .from('resumes')
-        .getPublicUrl(filePath);
-  
-      const publicUrl = publicUrlData.publicUrl;
-  
-      if (!publicUrl) {
-        console.error('Error retrieving public URL.');
-        return null;
-      }
+  try {
+    // Fetch existing resumes first
+    const { data: candidateData, error: fetchError } = await this.supabase_client
+      .from('candidates')
+      .select('resume_url')
+      .eq('id', userId)
+      .single();
 
-      await this.updateCandidateDetails(userId, { resume_url: publicUrl });
-  
-      return publicUrl;
-    } catch (err) {
-      console.error('Upload failed:', err);
+    if (fetchError) {
+      console.error('Error fetching existing resumes:', fetchError);
       return null;
     }
+
+    const existingUrls: string[] = candidateData?.resume_url || [];
+
+    // 🔒 Check max limit
+    if (existingUrls.length >= 3) {
+      console.warn('Resume limit reached (max 3)');
+      return null;
+    }
+
+    // Continue uploading
+    const filePath = `${userId}/${Date.now()}_${file.name}`;
+
+    const { data, error } = await this.supabase_client.storage
+      .from('resumes')
+      .upload(filePath, file, { upsert: true });
+
+    if (error) {
+      console.error('Error uploading file:', error);
+      return null;
+    }
+
+    const { data: publicUrlData } = this.supabase_client.storage
+      .from('resumes')
+      .getPublicUrl(filePath);
+
+    const publicUrl = publicUrlData.publicUrl;
+
+    if (!publicUrl) {
+      console.error('Error retrieving public URL.');
+      return null;
+    }
+
+    // Append and update
+    const updatedUrls = [...existingUrls, publicUrl];
+
+    const { error: updateError } = await this.supabase_client
+      .from('candidates')
+      .update({ resume_url: updatedUrls })
+      .eq('id', userId);
+
+    if (updateError) {
+      console.error('Error updating resume_url:', updateError);
+      return null;
+    }
+
+    return publicUrl;
+  } catch (err) {
+    console.error('Upload failed:', err);
+    return null;
   }
+}
+
+
+  async deleteResume(userId: string, resumeUrl: string): Promise<boolean> {
+  try {
+    // Extract file path from public URL
+    const path = resumeUrl.split('/resumes/')[1];
+    if (!path) {
+      console.error('Invalid resume URL');
+      return false;
+    }
+
+    // Delete from Supabase Storage
+    const { error: deleteError } = await this.supabase_client.storage
+      .from('resumes')
+      .remove([path]);
+
+    if (deleteError) {
+      console.error('Failed to delete file from storage:', deleteError);
+      return false;
+    }
+
+    // Fetch current resume URLs
+    const { data: candidateData, error: fetchError } = await this.supabase_client
+      .from('candidates')
+      .select('resume_url')
+      .eq('id', userId)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching candidate data:', fetchError);
+      return false;
+    }
+
+    const updatedUrls = (candidateData.resume_url || []).filter((url: string) => url !== resumeUrl);
+
+    // Update Supabase with filtered list
+    const { error: updateError } = await this.supabase_client
+      .from('candidates')
+      .update({ resume_url: updatedUrls })
+      .eq('id', userId);
+
+    if (updateError) {
+      console.error('Error updating resume_url:', updateError);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Failed to delete resume:', error);
+    return false;
+  }
+}
   
 
   async getRecruiterDetails(userId: string) {

@@ -139,4 +139,25 @@ export class SupaService {
   } catch (error: any) {
     console.error("Error saving user data:", error.message);
   }
+
+  // Add this method to your existing SupaService class
+async getCandidateById(candidateId: string): Promise<any> {
+  try {
+    const { data, error } = await this.supabase_client
+      .from('candidates')
+      .select('*')
+      .eq('id', candidateId)
+      .single();
+
+    if (error) {
+      console.error("Error fetching candidate:", error.message);
+      return null;
+    }
+
+    return data;
+  } catch (err) {
+    console.error("SupaService Error:", err);
+    return null;
+  }
+}
 }

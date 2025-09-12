@@ -1,14 +1,17 @@
 <!-- landing-page.component.html -->
 <nav class="bg-gradient-to-r from-blue-700 to-indigo-900 p-4 shadow-xl fixed w-full z-50 backdrop-filter backdrop-blur-sm bg-opacity-90">
   <div class="container mx-auto flex justify-between items-center">
-    <div class="text-white text-2xl font-bold flex items-center">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <!-- Logo Section -->
+    <div class="text-white text-xl sm:text-2xl font-bold flex items-center">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 sm:h-8 sm:w-8 mr-2 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
       <a href="#" class="hover:text-blue-200 transition duration-300 flex items-center">
         Resume<span class="text-blue-300 font-extrabold">Ranker</span>
       </a>
     </div>
+
+    <!-- Desktop Navigation -->
     <div class="hidden md:flex space-x-6 text-white font-medium">
       <a href="#home" class="hover:text-blue-300 transition duration-300">Home</a>
       <a href="#features" class="hover:text-blue-300 transition duration-300">Features</a>
@@ -16,38 +19,88 @@
       <a href="#testimonials" class="hover:text-blue-300 transition duration-300">Testimonials</a>
       <a href="#pricing" class="hover:text-blue-300 transition duration-300">Pricing</a>
     </div>
-    <div class="flex items-center">
+
+    <!-- Action Buttons & Mobile Menu Toggle -->
+    <div class="flex items-center space-x-2 sm:space-x-3">
+      <!-- Login Button - Always visible -->
       <button 
-        class="text-white bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-lg mr-3 transition duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transform hover:-translate-y-1"
+        class="text-white bg-blue-600 hover:bg-blue-700 px-3 py-2 sm:px-5 text-sm sm:text-base rounded-lg transition duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transform hover:-translate-y-1"
         (click)="goToLogin()">
         Login
       </button>
+      
+      <!-- Register Button - Hidden on very small screens, visible on sm+ -->
       <button 
-        class="hidden sm:block text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 px-5 py-2 rounded-lg transition duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transform hover:-translate-y-1"
+        class="hidden sm:block text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 px-3 py-2 sm:px-5 text-sm sm:text-base rounded-lg transition duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transform hover:-translate-y-1"
         (click)="goToRegister()">
         Register
       </button>
-      <button class="ml-4 text-white md:hidden">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      
+      <!-- Mobile Menu Toggle Button -->
+      <button 
+        class="ml-2 text-white md:hidden p-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        (click)="toggleMobileMenu()"
+        [attr.aria-expanded]="isMobileMenuOpen"
+        aria-label="Toggle mobile menu">
+        <!-- Hamburger Icon -->
+        <svg *ngIf="!isMobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+        <!-- Close Icon -->
+        <svg *ngIf="isMobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
     </div>
   </div>
   
-  <!-- Mobile Menu -->
-  <div class="md:hidden bg-indigo-900 mt-4 p-4 rounded-lg shadow-lg transition-all duration-300 ease-in-out" >
-    <div class="flex flex-col space-y-3 text-white font-medium">
-      <a href="#home" class="hover:text-blue-300 transition duration-300 py-2 px-4 hover:bg-indigo-800 rounded-lg">Home</a>
-      <a href="#features" class="hover:text-blue-300 transition duration-300 py-2 px-4 hover:bg-indigo-800 rounded-lg">Features</a>
-      <a href="#how-it-works" class="hover:text-blue-300 transition duration-300 py-2 px-4 hover:bg-indigo-800 rounded-lg">How It Works</a>
-      <a href="#testimonials" class="hover:text-blue-300 transition duration-300 py-2 px-4 hover:bg-indigo-800 rounded-lg">Testimonials</a>
-      <a href="#pricing" class="hover:text-blue-300 transition duration-300 py-2 px-4 hover:bg-indigo-800 rounded-lg">Pricing</a>
-      <button 
-        class="sm:hidden text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 px-5 py-2 rounded-lg transition duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-        (click)="goToRegister()">
-        Register
-      </button>
+  <!-- Mobile Menu - Conditionally displayed -->
+  <div 
+    class="md:hidden overflow-hidden transition-all duration-300 ease-in-out"
+    [class.max-h-0]="!isMobileMenuOpen"
+    [class.max-h-96]="isMobileMenuOpen"
+    [class.opacity-0]="!isMobileMenuOpen"
+    [class.opacity-100]="isMobileMenuOpen">
+    <div class="bg-indigo-900 bg-opacity-95 mt-4 p-4 rounded-lg shadow-lg backdrop-filter backdrop-blur-sm">
+      <div class="flex flex-col space-y-3 text-white font-medium">
+        <a 
+          href="#home" 
+          class="hover:text-blue-300 transition duration-300 py-2 px-4 hover:bg-indigo-800 hover:bg-opacity-50 rounded-lg"
+          (click)="closeMobileMenu()">
+          Home
+        </a>
+        <a 
+          href="#features" 
+          class="hover:text-blue-300 transition duration-300 py-2 px-4 hover:bg-indigo-800 hover:bg-opacity-50 rounded-lg"
+          (click)="closeMobileMenu()">
+          Features
+        </a>
+        <a 
+          href="#how-it-works" 
+          class="hover:text-blue-300 transition duration-300 py-2 px-4 hover:bg-indigo-800 hover:bg-opacity-50 rounded-lg"
+          (click)="closeMobileMenu()">
+          How It Works
+        </a>
+        <a 
+          href="#testimonials" 
+          class="hover:text-blue-300 transition duration-300 py-2 px-4 hover:bg-indigo-800 hover:bg-opacity-50 rounded-lg"
+          (click)="closeMobileMenu()">
+          Testimonials
+        </a>
+        <a 
+          href="#pricing" 
+          class="hover:text-blue-300 transition duration-300 py-2 px-4 hover:bg-indigo-800 hover:bg-opacity-50 rounded-lg"
+          (click)="closeMobileMenu()">
+          Pricing
+        </a>
+        
+        <!-- Register Button in Mobile Menu (shown only on very small screens) -->
+        <button 
+          class="sm:hidden text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 px-5 py-2 rounded-lg transition duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-purple-400 mt-2"
+          (click)="goToRegister()">
+          Register
+        </button>
+      </div>
     </div>
   </div>
 </nav>
@@ -634,4 +687,9 @@
               <!-- <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 -->
                 </div>
-               </div></div></div></div></div></section>
+               </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
