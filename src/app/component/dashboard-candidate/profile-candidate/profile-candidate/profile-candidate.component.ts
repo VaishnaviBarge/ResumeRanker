@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ProfileService } from 'src/app/services/profile.service';
 import { SupaService } from 'src/app/services/supa.service';
+import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
   selector: 'app-profile-candidate',
@@ -12,12 +13,35 @@ export class ProfileCandidateComponent {
   userData: any;
   isEditing = false;
   updatedUserData: any = {}; 
-  selectedFile: File | null = null;
+  selectedFiles: File[] = [];
   uploading: boolean = false;
+  newSkill: string = '';
+  filteredSkills: string[] = [];
+  showSuggestions: boolean = false;
+  allSkills: string[] = [
+    "Java", "Python", "C++", "JavaScript", "TypeScript", "Node.js", "Angular", "React", "Vue.js", "Spring Boot", "Django", "Flask", "Express.js",
+    "MongoDB", "MySQL", "PostgreSQL", "Oracle", "Firebase", "Supabase", "REST APIs", "GraphQL", "Docker", "Kubernetes", "AWS", "Azure", "Google Cloud",
+    "Linux", "Git", "CI/CD", "Jenkins", "Terraform", "HTML", "CSS", "Tailwind", "Bootstrap", "Figma", "Adobe XD", "Photoshop", "Illustrator", 
+    "UI/UX Design", "Responsive Design", "Wireframing", "Agile", "Scrum", "Kanban", "JIRA", "Trello", "Notion", "Project Management", "Team Leadership",
+    "Communication", "Problem Solving", "Time Management", "Critical Thinking", "Public Speaking", "Customer Service", "Sales", "CRM", 
+    "SEO", "SEM", "Digital Marketing", "Content Writing", "Copywriting", "Email Marketing", "Social Media Marketing", "Google Analytics", "Meta Ads", "Branding",
+    "Excel", "PowerPoint", "Microsoft Word", "Tableau", "Power BI", "Looker", "Data Analysis", "Data Visualization", "Data Cleaning", 
+    "Statistics", "Machine Learning", "Deep Learning", "TensorFlow", "PyTorch", "OpenCV", "NLP", "Computer Vision", "Big Data", "Spark", "Hadoop", 
+    "Finance", "Accounting", "Budgeting", "Bookkeeping", "Taxation", "Auditing", "Financial Modeling", "Investment Analysis", "Risk Management",
+    "Recruitment", "Onboarding", "HR Policies", "Payroll", "Performance Management", "Employee Engagement", 
+    "Legal Compliance", "Contracts", "Business Development", "Market Research", "Operations Management", "Supply Chain", "Logistics", 
+    "Customer Relationship Management", "Problem Resolution", "Negotiation", "Strategic Thinking", "Data Entry", "Technical Writing", 
+    "Quality Assurance", "Testing", "Manual Testing", "Automation Testing", "Selenium", "Cypress", "Postman", 
+    "Cloud Computing", "Networking", "Cybersecurity", "Penetration Testing", "Ethical Hacking", "DevOps", "System Administration",
+    "Photography", "Video Editing", "After Effects", "Premiere Pro", "3D Modeling", "Blender", "Unity", "Unreal Engine", 
+    "Teaching", "Mentoring", "Coaching", "Instructional Design", "Curriculum Development", "Research", "Scientific Writing", 
+    "Foreign Languages", "Translation", "Transcription", "Voiceover", "Data Labeling", "Virtual Assistance"
+  ];
 
   constructor(
     private supaService: SupaService,
-    private profileService: ProfileService
+    private profileService: ProfileService,
+    private toastService: ToastService
   ) {}
 
   async ngOnInit() {
@@ -36,6 +60,9 @@ export class ProfileCandidateComponent {
       }
   
       this.updatedUserData = { ...this.userData }; 
+      if (!Array.isArray(this.updatedUserData.skills)) {
+        this.updatedUserData.skills = [];
+      }
       console.log("Copied Data for Editing:", this.updatedUserData);
     }
   }
@@ -44,43 +71,67 @@ export class ProfileCandidateComponent {
     this.isEditing = !this.isEditing;
     if (!this.isEditing) {
       this.updatedUserData = { ...this.userData }; 
+      this.clearSuggestions();
     }
   }
 
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file && file.type === 'application/pdf') {
-      this.selectedFile = file;
-      console.log("Selected file:", file);
+  onFilesSelected(event: any) {
+  const files = Array.from(event.target.files) as File[];
+  const validFiles = files.filter(file => file.type === 'application/pdf');
+
+  if (validFiles.length !== files.length) {
+    alert("Only PDF files are allowed.");
+  }
+
+  this.selectedFiles = validFiles;
+}
+
+
+  async uploadResumes() {
+  if (!this.currentUser || this.selectedFiles.length === 0) return;
+
+  for (const file of this.selectedFiles) {
+    const url = await this.profileService.uploadFile(this.currentUser.id, file);
+
+    if (url) {
+      if (!this.updatedUserData.resume_url) {
+        this.updatedUserData.resume_url = [];
+      }
+
+      this.updatedUserData.resume_url.push(url);
+      this.toastService.show(`Uploaded: ${file.name}`);
     } else {
-      alert("Please select a valid PDF file.");
-      this.selectedFile = null;
+      this.toastService.show(`Failed to upload: ${file.name}`);
     }
   }
 
-  async uploadResume() {
-    if (!this.selectedFile || !this.currentUser) return;
-  
-    const uploadedFileUrl = await this.profileService.uploadFile(this.currentUser.id, this.selectedFile);
-  
-    if (uploadedFileUrl) {
-      console.log("Resume uploaded successfully:", uploadedFileUrl);
-      this.updatedUserData.resume_url = uploadedFileUrl;
-    } else {
-      console.error("Failed to upload resume.");
-    }
-  }
-  
-  getResumeUrl(): string | null {
-    return this.updatedUserData?.resume_url || null;
-  }
-  
+  this.selectedFiles = [];
+}
 
+
+  async deleteResume(url: string) {
+  if (!this.currentUser) return;
+
+  const success = await this.profileService.deleteResume(this.currentUser.id, url);
+  if (success) {
+    this.updatedUserData.resume_url = this.updatedUserData.resume_url.filter((u: string) => u !== url);
+    this.toastService.show('Resume deleted successfully!');
+  } else {
+    this.toastService.show('Failed to delete resume.');
+  }
+}
+
+  
+ getResumeUrls(): string[] {
+  return this.updatedUserData?.resume_url || [];
+}
+
+  
   async saveChanges() {
     if (!this.currentUser || !this.updatedUserData) return;
   
-    if (this.selectedFile) {
-      await this.uploadResume(); 
+    if (this.selectedFiles) {
+      await this.uploadResumes(); 
     }
 
     console.log("Updating candidate details:", this.updatedUserData);
@@ -91,9 +142,126 @@ export class ProfileCandidateComponent {
       console.log("Profile updated successfully!", updatedUser);
       this.userData = { ...updatedUser };
       this.isEditing = false;
-      this.selectedFile = null; 
+      this.selectedFiles = []; 
+      this.clearSuggestions();
+      this.toastService.show('Profile updated successfully!');
     } else {
       console.error("Failed to update candidate details");
     }
   }
+
+  filterSkills() {
+    const query = this.newSkill?.trim().toLowerCase() || '';
+    
+    if (query.length === 0) {
+      this.clearSuggestions();
+      return;
+    }
+
+    if (!this.updatedUserData.skills) {
+      this.updatedUserData.skills = [];
+    }
+
+   
+    this.filteredSkills = this.allSkills
+      .filter(skill =>
+        skill.toLowerCase().includes(query) &&
+        !this.updatedUserData.skills.includes(skill)
+      )
+      .slice(0, 10); 
+    
+    this.showSuggestions = this.filteredSkills.length > 0;
+    console.log('Query:', query, 'Filtered skills:', this.filteredSkills, 'Show suggestions:', this.showSuggestions);
+  }
+
+  clearSuggestions() {
+    this.filteredSkills = [];
+    this.showSuggestions = false;
+  }
+
+  onInputFocus() {
+    
+    if (this.newSkill?.trim().length > 0) {
+      this.filterSkills();
+    }
+  }
+
+  
+  onInputBlur() {
+    
+    setTimeout(() => {
+      this.clearSuggestions();
+    }, 200);
+  }
+
+  onKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      this.clearSuggestions();
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      if (this.filteredSkills.length > 0) {
+       
+        this.selectSuggestion(this.filteredSkills[0]);
+      } else {
+       
+        this.addSkill();
+      }
+    } else if (event.key === 'Tab' && this.filteredSkills.length > 0) {
+      event.preventDefault();
+      this.selectSuggestion(this.filteredSkills[0]);
+    }
+  }
+
+  addSkill() {
+    const skill = this.newSkill?.trim();
+    if (skill && skill.length > 0) {
+      
+      if (!this.updatedUserData.skills) {
+        this.updatedUserData.skills = [];
+      }
+      
+      const skillExists = this.updatedUserData.skills.some(
+        (existingSkill: string) => existingSkill.toLowerCase() === skill.toLowerCase()
+      );
+      
+      if (!skillExists) {
+        this.updatedUserData.skills.push(skill);
+      }
+    }
+    this.clearInput();
+  }
+
+  
+  selectSuggestion(skill: string) {
+   
+    if (!this.updatedUserData.skills) {
+      this.updatedUserData.skills = [];
+    }
+    
+    if (!this.updatedUserData.skills.includes(skill)) {
+      this.updatedUserData.skills.push(skill);
+    }
+    this.clearInput();
+  }
+
+  removeSkill(skill: string) {
+    if (this.updatedUserData.skills) {
+      this.updatedUserData.skills = this.updatedUserData.skills.filter((s: string) => s !== skill);
+    }
+  }
+
+ 
+  clearInput() {
+    this.newSkill = '';
+    this.clearSuggestions();
+  }
+
+  trackBySkill(index: number, skill: string): string {
+    return skill;
+  }
+
+  trackByUrl(index: number, url: string): string {
+  return url;
+}
+
 }

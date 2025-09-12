@@ -52,6 +52,8 @@ export class JobService {
       console.error("Error fetching jobs:", error.message);
       return [];
     }
+    console.log("job data",data);
+    
     return data;
   }
   
@@ -78,14 +80,14 @@ export class JobService {
   async getApplicationsForCandidate(candidateId: string): Promise<any[]> {
     const { data, error } = await this.supabase_client
       .from('job_applications')
-      .select('job_id')
+      .select('*')
       .eq('candidate_id', candidateId);
   
     if (error) {
       console.error("Error fetching candidate applications:", error.message);
       return [];
     }
-    
+    console.log("data", data);
     return data;
   }
 
@@ -397,5 +399,177 @@ async getCandidateEmailsByIds(candidateIds: string[]): Promise<string[]> {
   }
 }
 
+// Add these new methods to your existing JobService class
+
+async applyForJobWithSelectedResume(
+  jobId: string, 
+  candidateId: string, 
+  useDefaultResume: boolean, 
+  resumeFile: File | null,
+  useSelectedResume: boolean,
+  selectedResumeUrl: string
+) {
+  // Check if already applied
+  const { data: existingApplication, error } = await this.supabase_client
+    .from('job_applications')
+    .select('id')
+    .eq('job_id', jobId)
+    .eq('candidate_id', candidateId)
+    .single();
+
+  if (existingApplication) {
+    throw new Error("You have already applied for this job.");
+  }
+
+  let resumeUrl: string | null = null;
+  let resumeSummary: string | null = null;
+
+  if (useSelectedResume && selectedResumeUrl) {
+    // Use the selected resume URL
+    resumeUrl = selectedResumeUrl;
+    console.log("Using selected resume:", resumeUrl);
+  } else if (useDefaultResume) {
+    // Use default resume (first resume in array)
+    const { data: candidateData, error: candidateError } = await this.supabase_client
+      .from('candidates')
+      .select('resume_url')
+      .eq('id', candidateId)
+      .single();
+
+    if (candidateError) {
+      throw new Error("Error fetching default resume: " + candidateError.message);
+    }
+
+    if (candidateData?.resume_url && Array.isArray(candidateData.resume_url) && candidateData.resume_url.length > 0) {
+      resumeUrl = candidateData.resume_url[0]; // Use first resume as default
+    } else if (typeof candidateData?.resume_url === 'string') {
+      resumeUrl = candidateData.resume_url;
+    } else {
+      throw new Error("No default resume found. Please upload a resume.");
+    }
+  } else if (resumeFile) {
+    // Upload new resume file
+    const fileExt = resumeFile.name.split('.').pop();
+    const timestamp = Date.now();
+    const filePath = `resumes/${candidateId}/${timestamp}_${resumeFile.name}`;
+
+    const { error: uploadError } = await this.supabase_client.storage
+      .from('resumes')
+      .upload(filePath, resumeFile, { contentType: resumeFile.type });
+
+    if (uploadError) {
+      throw new Error("Error uploading resume: " + uploadError.message);
+    }
+
+    const { data: publicUrlData } = this.supabase_client.storage
+      .from('resumes')
+      .getPublicUrl(filePath);
+
+    resumeUrl = publicUrlData.publicUrl;
+
+    // Also update the candidate's resume_url array to include this new resume
+    try {
+      const { data: currentCandidate } = await this.supabase_client
+        .from('candidates')
+        .select('resume_url')
+        .eq('id', candidateId)
+        .single();
+
+      let updatedResumeUrls = [];
+      if (currentCandidate?.resume_url) {
+        if (Array.isArray(currentCandidate.resume_url)) {
+          updatedResumeUrls = [...currentCandidate.resume_url, resumeUrl];
+        } else {
+          updatedResumeUrls = [currentCandidate.resume_url, resumeUrl];
+        }
+      } else {
+        updatedResumeUrls = [resumeUrl];
+      }
+
+      await this.supabase_client
+        .from('candidates')
+        .update({ resume_url: updatedResumeUrls })
+        .eq('id', candidateId);
+
+    } catch (updateError) {
+      console.warn("Failed to update candidate resume array:", updateError);
+      // Don't throw error here as the main application process should continue
+    }
+  } else {
+    throw new Error("Please select a resume or upload a new one.");
+  }
+
+  // Extract resume content and calculate ATS score
+  if (resumeUrl) {
+    const body = { url: resumeUrl };
+    console.log("body", body);
+    const headers = {
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvc2J1dnd4cmNza2JxbHBja3B1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyMjc1MjksImV4cCI6MjA1MzgwMzUyOX0.Etdq-sNv4UAhYFJDU4Wsz3x2L64ZEQqS-wuum25ATUE',
+    };
+
+    const response = await this.supabase_client.functions.invoke('extract-resume', {
+      headers,
+      method: 'POST',
+      body,
+    });
+
+    const result = await response;
+    console.log("Result :", result);
+    this.resumeSummary = result || "No summary extracted."; 
+
+    this.jobDescription = await this.getJobsById(jobId);
+    console.log("Getting job Details..:", this.jobDescription[0].description);
+
+    this.ResumeATS = await this.getResumeMatch(this.jobDescription[0].description, this.resumeSummary.data.text);
+    console.log("Resume response :", this.ResumeATS.overallMatchScore);
+    this.overallMatchScore = this.ResumeATS.overallMatchScore;
+    this.technicalSkillsMatch = this.ResumeATS.technicalSkillsMatch;
+    this.experienceMatch = this.ResumeATS.experienceMatch;
+    this.educationMatch = this.ResumeATS.educationMatch;
+    this.missingSkills = this.ResumeATS.missingSkills || [];
+    this.matchingSkills = this.ResumeATS.matchingSkills || [];
+  }
+
+  // Insert job application
+  const { error: insertError } = await this.supabase_client
+    .from('job_applications')
+    .insert([{ 
+      job_id: jobId,
+      candidate_id: candidateId,
+      resume_url: resumeUrl,
+      resume_summary: this.resumeSummary,
+      overall_match_score: this.overallMatchScore,
+      technical_skills_match: this.technicalSkillsMatch,
+      experience_match: this.experienceMatch,
+      education_match: this.educationMatch,
+      missing_skills: this.missingSkills,
+      matching_skills: this.matchingSkills
+    }]);
+
+  if (insertError) {
+    throw insertError;
+  }
+}
+
+// Also add this method to your SupaService class for getting candidate by ID
+async getCandidateById(candidateId: string): Promise<any> {
+  try {
+    const { data, error } = await this.supabase_client
+      .from('candidates')
+      .select('*')
+      .eq('id', candidateId)
+      .single();
+
+    if (error) {
+      console.error("Error fetching candidate:", error.message);
+      return null;
+    }
+
+    return data;
+  } catch (err) {
+    console.error("SupaService Error:", err);
+    return null;
+  }
+}
 
 }
