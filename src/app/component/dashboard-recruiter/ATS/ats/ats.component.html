@@ -1,5 +1,6 @@
 <div class="p-6 w-full mx-auto bg-white shadow-md rounded-lg">
-  <h2 class="text-2xl font-semibold mb-4 text-indigo-700">ATS - Applications for Job ID: {{ jobId }}</h2>
+  <!-- <h2 class="text-2xl font-semibold mb-4 text-indigo-700">ATS - Applications for Job ID: {{ jobId }}</h2> -->
+  <h2 class="text-2xl font-semibold mb-4 text-indigo-700">ATS - Applications </h2>
   
   <div class="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -42,8 +43,8 @@
       <thead>
         <tr class="bg-indigo-100">
           <th class="border p-3 text-left text-indigo-800">Rank</th>
-          <th class="border p-3 text-left text-indigo-800">Candidate ID</th>
-          <th class="border p-3 text-left text-indigo-800">Candidate Name</th>
+          <!-- <th class="border p-3 text-left text-indigo-800">Candidate ID</th>
+          <th class="border p-3 text-left text-indigo-800">Candidate Name</th> -->
           <th class="border p-3 text-left text-indigo-800">Resume</th>
           <th class="border p-3 text-left text-indigo-800">Match %</th>
           <th class="border p-3 text-left text-indigo-800">Skills</th>
@@ -66,8 +67,8 @@
               </span>
             </div>
           </td>
-          <td class="border p-3">{{ application.candidate_id }}</td>
-          <td class="border p-3">{{ application.candidates?.fullname || 'N/A' }}</td>
+          <!-- <td class="border p-3">{{ application.candidate_id }}</td>
+          <td class="border p-3">{{ application.candidates?.fullname || 'N/A' }}</td> -->
           <td class="border p-3">
             <a [href]="application.resume_url" target="_blank" class="text-indigo-600 hover:text-indigo-800 underline flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

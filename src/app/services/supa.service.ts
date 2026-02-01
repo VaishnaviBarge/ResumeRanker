@@ -18,7 +18,6 @@ export class SupaService {
         storage: localStorage
       }
     });
-    console.log("supabase ",this.supabase_client);
     
     this.isAuthenticated = this.authStateSubject.asObservable();
 

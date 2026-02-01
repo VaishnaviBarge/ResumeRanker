@@ -5,6 +5,7 @@ const app = express();
 const PORT = 3000;
 
 const DIST_FOLDER = path.join(__dirname, 'dist', 'resume-ranker', 'browser');
+console.log("Serving from:", DIST_FOLDER);
 
 app.use(express.static(DIST_FOLDER));
 

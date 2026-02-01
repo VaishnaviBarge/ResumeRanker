@@ -67,7 +67,7 @@ export class ProfileService {
 
     const existingUrls: string[] = candidateData?.resume_url || [];
 
-    // 🔒 Check max limit
+    //  Check max limit
     if (existingUrls.length >= 3) {
       console.warn('Resume limit reached (max 3)');
       return null;
