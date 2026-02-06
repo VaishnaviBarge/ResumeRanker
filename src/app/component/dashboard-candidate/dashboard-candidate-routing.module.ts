@@ -5,17 +5,8 @@ import { DashboardCandidateComponent } from './dashboard-candidate.component';
 import { JobApplyComponent } from './job-apply/job-apply/job-apply.component';
 import { CompanyListComponent } from './company-list/company-list.component';
 import { HomeComponent } from './home/home.component';
-
-// const routes: Routes = [
-//   { path: '', component: DashboardCandidateComponent, children: [  
-//     {path: '', component: HomeComponent},
-//     { path: 'profile', component: ProfileCandidateComponent },
-//     { path: 'job', component: JobApplyComponent },
-//     { path: 'company', component: CompanyListComponent }
-//   ]},
-//   { path: 'profile', component: ProfileCandidateComponent },
-//   { path: 'job', component: JobApplyComponent }
-// ];
+import { ResumeTemplateComponent } from './resume-template/resume-template/resume-template.component';
+import { InterviewComponent } from './Interview/interview/interview.component';
 
 const routes: Routes = [
   { 
@@ -25,7 +16,11 @@ const routes: Routes = [
       { path: '', component: HomeComponent },
       { path: 'profile', component: ProfileCandidateComponent },
       { path: 'job', component: JobApplyComponent },
-      { path: 'company', component: CompanyListComponent }
+      { path: 'company', component: CompanyListComponent },
+
+      //new feature comming 
+      { path: 'resume-template', component: ResumeTemplateComponent },
+      { path: 'interview', component: InterviewComponent},
     ] 
   }
 ];

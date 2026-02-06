@@ -243,5 +243,35 @@ export class ProfileService {
     }
 }
 
+// EDUCATION
+async getEducation(candidateId: string) {
+  const { data } = await this.supabase_client
+    .from('candidate_education')
+    .select('*')
+    .eq('candidate_id', candidateId)
+    .order('start_year', { ascending: false });
+  return data || [];
+}
+
+async addEducation(data: any) {
+  return this.supabase_client
+    .from('candidate_education')
+    .insert(data);
+}
+
+async updateEducation(id: string, data: any) {
+  return this.supabase_client
+    .from('candidate_education')
+    .update(data)
+    .eq('id', id);
+}
+
+async deleteEducation(id: string) {
+  return this.supabase_client
+    .from('candidate_education')
+    .delete()
+    .eq('id', id);
+}
+
   
 }

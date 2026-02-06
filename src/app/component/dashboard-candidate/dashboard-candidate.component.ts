@@ -35,7 +35,6 @@ export class DashboardCandidateComponent implements OnInit, OnDestroy {
       this.checkProfileCompletion();
       this.loadCandidateDetails();
       
-      // Set up sidebar overlay listener
       this.setupOverlayListener();
     } catch (error) {
       console.error('Error retrieving or saving user data:', error);
@@ -43,14 +42,12 @@ export class DashboardCandidateComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Clean up event listeners when component is destroyed
     this.removeOverlayListener();
   }
 
   checkProfileCompletion() {
-    // First check if user and user_metadata exist
     if (!this.currentUser || !this.currentUser.user_metadata) {
-      this.isProfileIncomplete = true; // If we don't have user data, profile is incomplete
+      this.isProfileIncomplete = true; 
       return;
     }
     
@@ -77,19 +74,16 @@ export class DashboardCandidateComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Sidebar toggle functionality
   toggleSidebar(): void {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
     
     if (sidebar && overlay) {
       if (sidebar.classList.contains('-translate-x-full')) {
-        // Show sidebar
         sidebar.classList.remove('-translate-x-full');
         sidebar.classList.add('translate-x-0');
         overlay.classList.remove('hidden');
       } else {
-        // Hide sidebar
         sidebar.classList.add('-translate-x-full');
         sidebar.classList.remove('translate-x-0');
         overlay.classList.add('hidden');
@@ -97,7 +91,6 @@ export class DashboardCandidateComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Close sidebar (can be called from template or programmatically)
   closeSidebar(): void {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
@@ -109,7 +102,6 @@ export class DashboardCandidateComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Set up overlay click listener
   private setupOverlayListener(): void {
     const overlay = document.getElementById('sidebar-overlay');
     if (overlay) {
@@ -117,7 +109,6 @@ export class DashboardCandidateComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Remove overlay click listener
   private removeOverlayListener(): void {
     const overlay = document.getElementById('sidebar-overlay');
     if (overlay) {
@@ -125,34 +116,37 @@ export class DashboardCandidateComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Handle overlay click
   private handleOverlayClick(): void {
     this.closeSidebar();
   }
 
-  // Navigation methods (updated to close sidebar on mobile)
   goToProfile() {
-    this.closeSidebar(); // Close sidebar on navigation (mobile)
+    this.closeSidebar(); 
     this.router.navigate(['candidate-dashboard/profile']);
   }
 
   goToCompanies() {
-    this.closeSidebar(); // Close sidebar on navigation (mobile)
+    this.closeSidebar(); 
     this.router.navigate(['candidate-dashboard/company']);
   }
 
+  goToInterview() {
+    this.closeSidebar(); 
+    this.router.navigate(['candidate-dashboard/interview']);
+  }
+
   goToHome() {
-    this.closeSidebar(); // Close sidebar on navigation (mobile)
+    this.closeSidebar(); 
     this.router.navigate(['candidate-dashboard/']);
   }
 
   goToJob() {
-    this.closeSidebar(); // Close sidebar on navigation (mobile)
+    this.closeSidebar();
     this.router.navigate(['candidate-dashboard/job']);
   }
 
   async logout() {
-    this.closeSidebar(); // Close sidebar before logout
+    this.closeSidebar(); 
     await this.supaService.signOut();
     this.router.navigate(['/login']);
   }

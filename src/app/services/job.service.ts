@@ -46,14 +46,17 @@ export class JobService {
   async getAllJobs(): Promise<any[]> {
     const { data, error } = await this.supabase_client
       .from('jobs')
-      .select('*'); 
-  
+      .select(`
+        *,
+        recruiter:recruiter_id (
+          company_name
+        )
+      `);
     if (error) {
       console.error("Error fetching jobs:", error.message);
       return [];
     }
-    console.log("job data",data);
-    
+    console.log("job data with recruiter", data);
     return data;
   }
   

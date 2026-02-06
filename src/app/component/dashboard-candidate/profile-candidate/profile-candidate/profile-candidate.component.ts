@@ -2,12 +2,13 @@ import { Component } from '@angular/core';
 import { ProfileService } from 'src/app/services/profile.service';
 import { SupaService } from 'src/app/services/supa.service';
 import { ToastService } from 'src/app/services/toast.service';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-profile-candidate',
   templateUrl: './profile-candidate.component.html',
   styleUrls: ['./profile-candidate.component.css']
 })
+
 export class ProfileCandidateComponent {
   currentUser: any;
   userData: any;
@@ -18,6 +19,15 @@ export class ProfileCandidateComponent {
   newSkill: string = '';
   filteredSkills: string[] = [];
   showSuggestions: boolean = false;
+  educationList: any[] = [];
+  experienceList: any[] = [];
+
+  showEducationModal = false;
+  showExperienceModal = false;
+
+  editingEducation: any = null;
+  editingExperience: any = null;
+
   allSkills: string[] = [
     "Java", "Python", "C++", "JavaScript", "TypeScript", "Node.js", "Angular", "React", "Vue.js", "Spring Boot", "Django", "Flask", "Express.js",
     "MongoDB", "MySQL", "PostgreSQL", "Oracle", "Firebase", "Supabase", "REST APIs", "GraphQL", "Docker", "Kubernetes", "AWS", "Azure", "Google Cloud",
@@ -37,11 +47,12 @@ export class ProfileCandidateComponent {
     "Teaching", "Mentoring", "Coaching", "Instructional Design", "Curriculum Development", "Research", "Scientific Writing", 
     "Foreign Languages", "Translation", "Transcription", "Voiceover", "Data Labeling", "Virtual Assistance"
   ];
-
+  
   constructor(
     private supaService: SupaService,
     private profileService: ProfileService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private router: Router
   ) {}
 
   async ngOnInit() {
@@ -65,7 +76,49 @@ export class ProfileCandidateComponent {
       }
       console.log("Copied Data for Editing:", this.updatedUserData);
     }
+    this.educationList = await this.profileService.getEducation(this.currentUser.id);
+    // this.experienceList = await this.profileService.getExperience(this.currentUser.id);
+
   }
+
+  openEducationModal(edu: any = null) {
+  this.editingEducation = edu
+    ? { ...edu }
+    : {
+        degree: '',
+        institute: '',
+        start_year: '',
+        end_year: ''
+      };
+  this.showEducationModal = true;
+}
+
+closeEducationModal() {
+  this.showEducationModal = false;
+  this.editingEducation = null;
+}
+
+async saveEducation() {
+  this.editingEducation.candidate_id = this.currentUser.id;
+
+  if (this.editingEducation.id) {
+    await this.profileService.updateEducation(
+      this.editingEducation.id,
+      this.editingEducation
+    );
+  } else {
+    await this.profileService.addEducation(this.editingEducation);
+  }
+
+  this.educationList = await this.profileService.getEducation(this.currentUser.id);
+  this.closeEducationModal();
+}
+
+  async deleteEducation(id: string) {
+  await this.profileService.deleteEducation(id);
+  this.educationList = await this.profileService.getEducation(this.currentUser.id);
+  }
+
 
   toggleEdit() {
     this.isEditing = !this.isEditing;
@@ -84,7 +137,7 @@ export class ProfileCandidateComponent {
   }
 
   this.selectedFiles = validFiles;
-}
+  }
 
 
   async uploadResumes() {
@@ -106,25 +159,25 @@ export class ProfileCandidateComponent {
   }
 
   this.selectedFiles = [];
-}
+  }
 
 
   async deleteResume(url: string) {
-  if (!this.currentUser) return;
+    if (!this.currentUser) return;
 
-  const success = await this.profileService.deleteResume(this.currentUser.id, url);
-  if (success) {
-    this.updatedUserData.resume_url = this.updatedUserData.resume_url.filter((u: string) => u !== url);
-    this.toastService.show('Resume deleted successfully!');
-  } else {
-    this.toastService.show('Failed to delete resume.');
+    const success = await this.profileService.deleteResume(this.currentUser.id, url);
+    if (success) {
+      this.updatedUserData.resume_url = this.updatedUserData.resume_url.filter((u: string) => u !== url);
+      this.toastService.show('Resume deleted successfully!');
+    } else {
+      this.toastService.show('Failed to delete resume.');
+    }
   }
-}
 
   
- getResumeUrls(): string[] {
+  getResumeUrls(): string[] {
   return this.updatedUserData?.resume_url || [];
-}
+  }
 
   
   async saveChanges() {
@@ -262,6 +315,10 @@ export class ProfileCandidateComponent {
 
   trackByUrl(index: number, url: string): string {
   return url;
+}
+
+generateResume() {
+  this.router.navigate(['/candidate-dashboard/resume-template']);
 }
 
 }

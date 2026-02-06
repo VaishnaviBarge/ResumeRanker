@@ -83,7 +83,8 @@ export class JobApplyComponent {
   
       this.jobs = jobs.map(job => ({
         ...job,
-        hasApplied: appliedJobIds.has(job.id) 
+        companyName: job.recruiter?.company_name,
+        hasApplied: appliedJobIds.has(job.id)
       }));
   
       console.log("Fetched jobs with hasApplied:", this.jobs);

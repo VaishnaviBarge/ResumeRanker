@@ -1,0 +1,83 @@
+<div class="resume" id="resumeContent">
+<div class="resume-container">
+
+  <!-- Header -->
+  <header class="resume-header">
+    <h1>{{ candidateData?.fullname || 'Your Name' }}</h1>
+    <p class="contact">
+        {{ candidateData?.email }}
+        <span *ngIf="candidateData?.phone_number"> | {{ candidateData?.phone_number }}</span>
+        <span *ngIf="candidateData?.address"> | {{ candidateData?.address }}</span>
+        <span *ngIf="candidateData?.linkedin_profile"> | <a href="{{ candidateData.linkedin_profile }}" target="_blank">LinkedIn</a></span>
+      </p>
+  </header>
+
+  <!-- Body -->
+  <section class="resume-body">
+
+    <!-- LEFT COLUMN -->
+    <aside class="left-column">
+
+      <div class="section">
+        <h3>Skills</h3>
+        <ul class="skills-list">
+            <li *ngFor="let skill of candidateData?.skills">{{ skill }}</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3>Education</h3>
+        <p>{{ candidateData?.education }}</p>
+      </div>
+
+      <div class="section">
+        <h3>Certifications</h3>
+        <ul>
+          <li *ngFor="let cert of candidateData?.certifications">{{ cert }}</li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <h3>Portfolio</h3>
+        <a *ngIf="candidateData?.portfolio" href="{{ candidateData.portfolio }}" target="_blank">{{ candidateData.portfolio }}</a>
+      </div>
+
+    </aside>
+
+    <!-- RIGHT COLUMN -->
+    <main class="right-column">
+
+      <div class="section">
+        <h3>Professional Summary</h3>
+        <p>{{ candidateData?.preferred_job_role || 'No summary available' }}</p>
+      </div>
+
+      <div class="section">
+        <h3>Experience</h3>
+        <p>{{ candidateData?.work_experience }}</p>
+      </div>
+
+      <div class="section">
+        <h3>Expected Salary</h3>
+        <p>{{ candidateData?.expected_salary_min }}L - {{ candidateData?.expected_salary_max }}L</p>
+      </div>
+
+      <div class="section">
+        <h3>Resume Links</h3>
+        <ul>
+          <li *ngFor="let resume of candidateData?.resume_url">
+            <a href="{{ resume }}" target="_blank">View Resume</a>
+          </li>
+        </ul>
+      </div>
+
+    </main>
+
+  </section>
+
+</div>
+</div>
+
+<button class="download-btn" (click)="downloadPDF()">
+  Download Resume (PDF)
+</button>
