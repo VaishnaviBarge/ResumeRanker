@@ -28,24 +28,27 @@ export class ResumeTemplateComponent {
     console.log("Data",this.candidateData);
   }
 
-   downloadPDF() {
-    const element = document.getElementById('resumeContent');
+  downloadPDF() {
+  const element = document.getElementById('resumeContent');
 
-    const options = {
-      margin: [10, 10, 10, 10],
-      filename: `${this.candidateData?.fullname || 'resume'}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true
-      },
-      jsPDF: {
-        unit: 'mm',
-        format: 'a4',
-        orientation: 'portrait'
-      }
-    };
+  const options = {
+    
+    filename: `${this.candidateData?.fullname || 'resume'}.pdf`,
+    image: { type: 'jpeg', quality: 1 },
+    html2canvas: {
+      scale: 3,
+      useCORS: true,
+      scrollY: 0
+    },
+    jsPDF: {
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait'
+    },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+  };
 
-    (html2pdf as any)().from(element).set(options).save();
-  }
+  (html2pdf as any)().set(options).from(element).save();
+}
+
 }

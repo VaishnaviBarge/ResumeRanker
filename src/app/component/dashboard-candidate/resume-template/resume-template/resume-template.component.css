@@ -1,54 +1,149 @@
-.resume-container {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 30px;
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Existing resume content styles (UNCHANGED) ── */
+#resumeContent {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 10mm;
+  margin: auto;
+  background: white;
+}
+
+.ats-resume {
+  font-family: 'Helvetica', sans-serif;
   color: #000;
-  background: #fff;
+  line-height: 1.4;
 }
 
-.resume-header {
+header {
   text-align: center;
-  border-bottom: 2px solid #000;
-  padding-bottom: 10px;
   margin-bottom: 20px;
 }
 
-.resume-header h1 {
-  margin: 0;
-  font-size: 28px;
+h1 {
+  font-size: 26px;
+  margin-bottom: 4px;
 }
 
-.contact {
-  font-size: 14px;
-  margin-top: 5px;
-}
-
-.resume-body {
-  display: grid;
-  grid-template-columns: 30% 70%;
-  gap: 20px;
-}
-
-.section {
-  margin-bottom: 20px;
-}
-
-.section h3 {
+h2 {
   font-size: 16px;
-  margin-bottom: 6px;
+  margin-top: 20px;
   border-bottom: 1px solid #000;
-  padding-bottom: 4px;
+  padding-bottom: 5px;
+  text-transform: uppercase;
 }
 
-.skills-list {
-  list-style-type: disc;
-  padding-left: 20px;
-  font-size: 14px;
+h3 {
+  font-size: 13px;
+  margin-top: 10px;
+  font-weight: 600;
 }
 
+p, li {
+  font-size: 12px;
+}
 
-.section p {
-  font-size: 14px;
-  line-height: 1.5;
+ul {
+  padding-left: 18px;
+}
+
+/* ── PAGE SHELL (new, nothing above touched) ── */
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f4f6f9;
+  padding: 36px 24px 64px;
+}
+
+.resume-toolbar {
+  max-width: 820px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid #e2e6ea;
+  border-radius: 8px;
+  padding: 12px 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.resume-toolbar .toolbar-label {
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  letter-spacing: 0.01em;
+}
+
+.resume-toolbar .toolbar-label span {
+  font-weight: 400;
+  color: #9ca3af;
+  margin-left: 6px;
+  font-size: 12px;
+}
+
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 9px 22px;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+  letter-spacing: 0.01em;
+}
+
+.btn-download svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.btn-download:hover {
+  background: #1d4ed8;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-download:active {
+  transform: translateY(0);
+}
+
+.resume-card-wrapper {
+  max-width: 820px;
+  margin: 0 auto;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.07),
+    0 8px 28px rgba(0,0,0,0.10),
+    0 24px 56px rgba(0,0,0,0.07);
+}
+
+@media (max-width: 880px) {
+  :host {
+    padding: 20px 12px 48px;
+  }
+
+  .resume-card-wrapper {
+    border-radius: 2px;
+  }
+
+  #resumeContent {
+    width: 100% !important;
+    min-height: unset !important;
+  }
+
+  .resume-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
 }

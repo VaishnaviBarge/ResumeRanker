@@ -1,7 +1,6 @@
-<div class="resume" id="resumeContent">
+<!-- <div class="resume" id="resumeContent">
 <div class="resume-container">
 
-  <!-- Header -->
   <header class="resume-header">
     <h1>{{ candidateData?.fullname || 'Your Name' }}</h1>
     <p class="contact">
@@ -12,10 +11,8 @@
       </p>
   </header>
 
-  <!-- Body -->
   <section class="resume-body">
 
-    <!-- LEFT COLUMN -->
     <aside class="left-column">
 
       <div class="section">
@@ -44,7 +41,6 @@
 
     </aside>
 
-    <!-- RIGHT COLUMN -->
     <main class="right-column">
 
       <div class="section">
@@ -77,7 +73,204 @@
 
 </div>
 </div>
+ -->
 
-<button class="download-btn" (click)="downloadPDF()">
+<!-- TOOLBAR WITH DOWNLOAD BUTTON AT TOP -->
+<div class="resume-toolbar">
+  <span class="toolbar-label">
+    Resume Preview
+    <span>— PDF · A4</span>
+  </span>
+  <button class="btn-download" (click)="downloadPDF()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+    </svg>
+    Download Resume (PDF)
+  </button>
+</div>
+
+<!-- RESUME CARD — everything inside #resumeContent is unchanged -->
+<div class="resume-card-wrapper">
+  <div *ngIf="candidateData" class="resume ats-resume" id="resumeContent">
+
+    <!-- HEADER -->
+    <header>
+      <h1>Vaishnavi Barge</h1>
+      <p>
+        Email: vaishnavibarge0gmail.com |
+        Phone: +91-9975362940 |
+        GitHub: github.com/VaishnaviBarge |
+        Portfolio: vaishnavi-barge.netlify.app
+      </p>
+    </header>
+
+    <!-- ABOUT -->
+    <section>
+      <h2>Professional Summary</h2>
+      <p>
+        I'm a Computer Engineering graduate passionate about building user-friendly web applications.
+        I have experience in both front-end and back-end development and enjoy creating clean,
+        efficient, and scalable solutions. I'm looking for an opportunity to apply my skills,
+        learn from mentors, and contribute to meaningful projects while staying updated with new technologies.
+      </p>
+    </section>
+
+    <!-- EDUCATION -->
+    <section>
+      <h2>Education</h2>
+      <h3>Marathwada Mitra Mandal's Institute of Technology — Maharashtra, India</h3>
+      <p>Bachelor of Engineering in Computer | GPA: 8.01</p>
+      <p>July 2021 – June 2025</p>
+      <h3>Kendriya Vidyalaya No. 2, AFS Pune — Maharashtra, India</h3>
+      <p>HSC: 69.8% | SSC: 77.2%</p>
+      <p>2019 – 2021</p>
+    </section>
+
+    <!-- SKILLS -->
+    <section>
+      <h2>Skills Summary</h2>
+      <p><strong>Languages:</strong> Java, JavaScript, HTML, CSS</p>
+      <p><strong>Frameworks:</strong> React, Angular, Tailwind, Bootstrap</p>
+      <p><strong>Backend &amp; Databases:</strong> Java, Node.js, Supabase, SQL</p>
+      <p><strong>Tools:</strong> Git, GitHub, NX Monorepo, Firecrawl</p>
+      <p><strong>Foreign Languages:</strong> German (Beginner A1)</p>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section>
+      <h2>Experience</h2>
+      <h3>College of Military Engineering — Intern</h3>
+      <p>May 2024 – Sep 2024 | Hybrid</p>
+      <ul>
+        <li>Worked on automated mark-sheet generation system.</li>
+        <li>Developed the Sarvatra Web Portal for academic management.</li>
+        <li>Implemented real-time grade sheet generation.</li>
+        <li><strong>Tech Stack:</strong> Next.js, Prisma ORM</li>
+      </ul>
+    </section>
+
+    <!-- PROJECTS -->
+    <section>
+      <h2>Projects</h2>
+      <h3>Multi-Feature Bank Management System</h3>
+      <ul>
+        <li>Developed banking system with account management, fund transfers, bill payments, and FASTag services.</li>
+        <li>Implemented secure authentication and transaction validation.</li>
+        <li><strong>Tech Stack:</strong> Java, Servlet, JDBC, JSP, Bootstrap</li>
+      </ul>
+      <h3>Resume Ranker – AI-Powered ATS System</h3>
+      <ul>
+        <li>Built an AI-based resume matching and ranking platform.</li>
+        <li>Integrated Supabase Edge Functions and LLMs for resume extraction.</li>
+        <li>Implemented recruiter &amp; candidate dashboards with job posting and filtering.</li>
+        <li><strong>Tech Stack:</strong> Angular, Supabase, Tailwind, Groq (LLM), SendGrid</li>
+        <li><strong>Links:</strong> Live Demo: resumeranker-gkt9.onrender.com | GitHub: github.com/VaishnaviBarge/ResumeRanker</li>
+      </ul>
+      <h3>Secure AI Chatbot with Nhost</h3>
+      <ul>
+        <li>Developed AI chatbot with authentication and real-time messaging.</li>
+        <li>Integrated OpenRouter AI and automated workflows using n8n.</li>
+        <li><strong>Tech Stack:</strong> Nhost, GraphQL, n8n, OpenRouter AI</li>
+        <li><strong>Links:</strong> Live Demo: vaishchatbot.netlify.app | GitHub: github.com/VaishnaviBarge/AI-Chatbot</li>
+      </ul>
+    </section>
+
+  </div>
+</div>
+<!-- <div class="resume ats-resume" id="resumeContent">
+
+  <header>
+    <h1>{{ candidateData?.fullname || 'Your Name' }}</h1>
+    <p>
+      Email: {{ candidateData?.email }}
+      <span *ngIf="candidateData?.phone_number"> | Phone: {{ candidateData.phone_number }}</span>
+      <span *ngIf="candidateData?.portfolio">
+        | Portfolio: {{ candidateData.portfolio }}
+      </span>
+      <span *ngIf="candidateData?.linkedin_profile">
+        | LinkedIn: {{ candidateData.linkedin_profile }}
+      </span>
+    </p>
+  </header>
+
+  <section>
+    <h2>Professional Summary</h2>
+    <p>
+      {{ candidateData?.preferred_job_role ||
+      'Computer Engineering graduate passionate about building user-friendly web applications with strong front-end and back-end skills.' }}
+    </p>
+  </section>
+
+  <section>
+    <h2>Education</h2>
+
+    <h3>Marathwada Mitra Mandal's Institute of Technology — Maharashtra, India</h3>
+    <p>Bachelor of Engineering in Computer | GPA: 8.01</p>
+    <p>July 2021 – June 2025</p>
+
+    <h3>Kendriya Vidyalaya No. 2, AFS Pune — Maharashtra, India</h3>
+    <p>HSC: 69.8% | SSC: 77.2%</p>
+    <p>2019 – 2021</p>
+  </section>
+
+  <section>
+    <h2>Skills</h2>
+    <p *ngIf="candidateData?.skills?.length">
+      {{ candidateData.skills.join(', ') }}
+    </p>
+  </section>
+
+  <section>
+    <h2>Experience</h2>
+
+    <h3>College of Military Engineering — Intern</h3>
+    <p>May 2024 – Sep 2024 | Hybrid</p>
+    <ul>
+      <li>Worked on automated mark-sheet generation system.</li>
+      <li>Developed Sarvatra Web Portal for academic management.</li>
+      <li>Implemented real-time grade sheet generation.</li>
+      <li><strong>Tech Stack:</strong> Next.js, Prisma ORM</li>
+    </ul>
+
+    <p *ngIf="candidateData?.work_experience">
+      {{ candidateData.work_experience }}
+    </p>
+  </section>
+
+  <section>
+    <h2>Projects</h2>
+
+    <h3>Multi-Feature Bank Management System</h3>
+    <ul>
+      <li>Developed banking system with account management and fund transfers.</li>
+      <li>Implemented secure authentication and transaction validation.</li>
+      <li><strong>Tech Stack:</strong> Java, Servlet, JDBC, JSP, Bootstrap</li>
+    </ul>
+
+    <h3>Resume Ranker – AI-Powered ATS System</h3>
+    <ul>
+      <li>Built AI-based resume matching and ranking platform.</li>
+      <li>Integrated Supabase Edge Functions and LLMs.</li>
+      <li>Implemented recruiter & candidate dashboards.</li>
+      <li><strong>Tech Stack:</strong> Angular, Supabase, Tailwind, Groq (LLM)</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Certifications</h2>
+    <ul>
+      <li *ngFor="let cert of candidateData?.certifications">
+        {{ cert }}
+      </li>
+    </ul>
+  </section>
+
+
+</div>
+
+<button
+  class="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md mt-6"
+  (click)="downloadPDF()"
+>
   Download Resume (PDF)
-</button>
+</button> -->
