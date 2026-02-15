@@ -95,12 +95,12 @@
 
     <!-- HEADER -->
     <header>
-      <h1>Vaishnavi Barge</h1>
+      <h1>{{ candidateData?.fullname || 'Your Name' }}</h1>
       <p>
-        Email: vaishnavibarge0gmail.com |
-        Phone: +91-9975362940 |
+        Email: {{ candidateData?.email || 'Your email' }} |
+        Phone: {{ candidateData?.phone_number || 'Your Name' }} |
         GitHub: github.com/VaishnaviBarge |
-        Portfolio: vaishnavi-barge.netlify.app
+        Linkdin: {{ candidateData?.linkedin_profile}}
       </p>
     </header>
 
@@ -108,10 +108,7 @@
     <section>
       <h2>Professional Summary</h2>
       <p>
-        I'm a Computer Engineering graduate passionate about building user-friendly web applications.
-        I have experience in both front-end and back-end development and enjoy creating clean,
-        efficient, and scalable solutions. I'm looking for an opportunity to apply my skills,
-        learn from mentors, and contribute to meaningful projects while staying updated with new technologies.
+        {{ candidateData?.about || 'Your introduction'}}
       </p>
     </section>
 

@@ -77,11 +77,11 @@ export class ProfileCandidateComponent {
       console.log("Copied Data for Editing:", this.updatedUserData);
     }
     this.educationList = await this.profileService.getEducation(this.currentUser.id);
-    // this.experienceList = await this.profileService.getExperience(this.currentUser.id);
+    this.experienceList = await this.profileService.getExperience(this.currentUser.id);
 
   }
 
-  openEducationModal(edu: any = null) {
+openEducationModal(edu: any = null) {
   this.editingEducation = edu
     ? { ...edu }
     : {
@@ -93,9 +93,28 @@ export class ProfileCandidateComponent {
   this.showEducationModal = true;
 }
 
+openExperienceModal(exp: any = null){
+  this.editingExperience = exp 
+    ? { ...exp}
+    :{
+      company: '',
+      role: '',
+      description: '',
+      location: '',
+      start_date: '',
+      end_date: ''
+    };
+  this.showExperienceModal = true;
+}
+
 closeEducationModal() {
   this.showEducationModal = false;
   this.editingEducation = null;
+}
+
+closeExperienceModal() {
+  this.showExperienceModal = false;
+  this.editingExperience = null;
 }
 
 async saveEducation() {
@@ -114,10 +133,31 @@ async saveEducation() {
   this.closeEducationModal();
 }
 
-  async deleteEducation(id: string) {
+async saveExperience() {
+  this.editingExperience.candidate_id = this.currentUser.id;
+
+  if (this.editingExperience.id) {
+    await this.profileService.updateExperience(
+      this.editingExperience.id,
+      this.editingExperience
+    );
+  } else {
+    await this.profileService.addExperience(this.editingExperience);
+  }
+
+  this.experienceList = await this.profileService.getExperience(this.currentUser.id);
+  this.closeExperienceModal();
+}
+
+async deleteEducation(id: string) {
   await this.profileService.deleteEducation(id);
   this.educationList = await this.profileService.getEducation(this.currentUser.id);
-  }
+}
+
+async deleteExperience(id: string) {
+  await this.profileService.deleteExperience(id);
+  this.experienceList = await this.profileService.getExperience(this.currentUser.id);
+}
 
 
   toggleEdit() {

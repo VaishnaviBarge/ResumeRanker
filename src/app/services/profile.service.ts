@@ -273,5 +273,35 @@ async deleteEducation(id: string) {
     .eq('id', id);
 }
 
+// Experience
+
+async getExperience(candidateId: string) {
+  const { data } = await this.supabase_client
+    .from('candidate_experience')
+    .select('*')
+    .eq('candidate_id', candidateId)
+    .order('start_date', { ascending: false });
+  return data || [];
+}
   
+async addExperience(data: any) {
+  return this.supabase_client
+    .from('candidate_experience')
+    .insert(data);
+}
+
+async updateExperience(id: string, data: any) {
+  return this.supabase_client
+    .from('candidate_experience')
+    .update(data)
+    .eq('id', id);
+}
+
+async deleteExperience(id: string) {
+  return this.supabase_client
+    .from('candidate_experience')
+    .delete()
+    .eq('id', id);
+}
+
 }
